@@ -1,0 +1,4 @@
+import json
+test = '{"test": "this is a test"}'
+test2 = json.loads(test)
+print(test2['test'])
