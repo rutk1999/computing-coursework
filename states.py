@@ -61,9 +61,14 @@ class PlayerBrowseState(State):
     def update(self):
         if self.menuButton.isPressed():
             self.stateManager.changeState(MenuState(self.stateManager, self.window))
-
+        for i in range(len(self.players)):
+            if self.players[i].isPressed():
+                self.stateManager.changeState(PlayerStatisticsState(self.stateManager, self.window, "test"))
+        
     def pollEvents(self, event):
         self.menuButton.pollForEvents(event)
+        for i in range(len(self.players)):
+            self.players[i].pollForEvents(event)
 
 #player stats screen
 class PlayerStatisticsState(State):
