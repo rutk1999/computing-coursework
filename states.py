@@ -1,8 +1,12 @@
 import pygame
 import jsonloader
 import utility
+from GUI import *
 
 pygame.init()
+
+##TODO - sort out score in game state
+##
 
 #state manager
 class StateManager():
@@ -45,11 +49,13 @@ class PlayerBrowseState(State):
         super(PlayerBrowseState, self).__init__(stateManager)
         self.window = window
         self.util = utility.TextRenderer(window)
-        self.util.setFontSize(16)
         self.menuButton = utility.Button(pygame.image.load("MenuButton.png").convert(), 272, 500)
+        self.createPlayerButton = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 650, 500)
         self.players = []
+        self.offset = 10
+        self.fontSize = 24
         for i in range(len(jsonloader.data["players"])):
-            player = utility.TextButton(self.window, 0, i * 50)
+            player = utility.TextButton(self.window, self.offset, (i * (self.fontSize * 1.5)) + self.offset, self.fontSize)
             self.players.append(player)
 
     def render(self):
@@ -57,16 +63,20 @@ class PlayerBrowseState(State):
         for i in range(len(self.players)):
             self.players[i].render(jsonloader.data["players"][i]["name"])
         self.menuButton.render(self.window)
+        self.createPlayerButton.render(self.window)
 
     def update(self):
         if self.menuButton.isPressed():
             self.stateManager.changeState(MenuState(self.stateManager, self.window))
+        if self.createPlayerButton.isPressed():
+            self.stateManager.changeState(PlayerCreationState(self.stateManager, self.window))
         for i in range(len(self.players)):
             if self.players[i].isPressed():
-                self.stateManager.changeState(PlayerStatisticsState(self.stateManager, self.window, "test"))
+                self.stateManager.changeState(PlayerStatisticsState(self.stateManager, self.window, jsonloader.data["players"][i]))
         
     def pollEvents(self, event):
         self.menuButton.pollForEvents(event)
+        self.createPlayerButton.pollForEvents(event)
         for i in range(len(self.players)):
             self.players[i].pollForEvents(event)
 
@@ -77,15 +87,29 @@ class PlayerStatisticsState(State):
         self.window = window
         self.playerInfo = playerInfo
         self.playerStats = utility.TextRenderer(self.window)
+        self.playerStatisticsButton = utility.Button(pygame.image.load("BrowsePlayers.png").convert(), 100, 500)
+        self.menuButton = utility.Button(pygame.image.load("MenuButton.png").convert(), 428, 500)
 
     def render(self):
-        self.playerStats.drawText(self.playerInfo, 0, 0)        
+        self.playerStats.setFontSize(48)
+        self.playerStats.drawCenteredText(self.playerInfo["name"], 400, 100)
+        self.playerStats.setFontSize(32)
+        self.playerStats.drawCenteredText("Age: " + self.playerInfo["age"], 400, 200)    
+        self.playerStats.drawCenteredText("Runs: " + self.playerInfo["runsScored"], 400, 250)    
+        self.playerStats.drawCenteredText("Wickets: " + self.playerInfo["wicketsTaken"], 400, 300)   
+        self.playerStatisticsButton.render(self.window)
+        self.menuButton.render(self.window)
 
     def update(self):
         self.window.fill((53, 92, 125))
+        if self.playerStatisticsButton.isPressed():
+            self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
+        if self.menuButton.isPressed():
+            self.stateManager.changeState(MenuState(self.stateManager, self.window))
 
     def pollEvents(self, event):
-        pass
+        self.playerStatisticsButton.pollForEvents(event)
+        self.menuButton.pollForEvents(event)
 
 #menu screen
 class MenuState(State):
@@ -102,15 +126,91 @@ class MenuState(State):
         self.window.fill((53, 92, 125))
         self.playerBrowseButton.render(self.window)  
         self.createMatchButton.render(self.window)
-        self.titleText.render(self.window) 
-    
+        self.titleText.render(self.window)
+
     def update(self):
-        #TODO - check for mouse input(if it is clicked on text)
         if self.playerBrowseButton.isPressed():
             self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
+        if self.createMatchButton.isPressed():
+            self.stateManager.changeState(MatchState(self.stateManager, self.window))
 
     def pollEvents(self, event):
         self.playerBrowseButton.pollForEvents(event)     
-        self.createMatchButton.pollForEvents(event) 
-            
-            
+        self.createMatchButton.pollForEvents(event)
+
+#player creation state
+class PlayerCreationState(State):
+    def __init__(self, stateManager, window):
+        super(PlayerCreationState, self).__init__(stateManager)
+        self.window = window
+        self.text = utility.TextRenderer(window)
+        self.inputBox = InLineTextBox((400, 200), 200, color=(255, 255, 255), bg_color=(0, 0, 0))
+        self.addPlayerButton = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 368, 500)
+
+    def render(self):
+        self.window.fill((53, 92, 125))
+        self.text.setFontSize(48)
+        self.text.drawCenteredText("Add a Player", 400, 100)
+        self.inputBox.render(self.window)
+        self.addPlayerButton.render(self.window)
+    
+    def update(self):
+        if self.addPlayerButton.isPressed():
+            #get text in the inputbox
+            temp = self.inputBox.text
+            #split the string from name and age
+            nameAndAge = temp.split(',')
+            #add player using jsonloader function
+            jsonloader.addPlayer(jsonloader.data, nameAndAge[0].strip(), nameAndAge[1].strip())
+            self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
+    
+    def pollEvents(self, event):
+        self.inputBox.update(event)
+        self.addPlayerButton.pollForEvents(event)
+
+class MatchState(State):
+    def __init__(self, stateManager, window):
+        super(MatchState, self).__init__(stateManager)
+        self.window = window
+        self.buttonOne = utility.Button(pygame.image.load("run1.png").convert(), 30, 500)
+        self.buttonTwo = utility.Button(pygame.image.load("run2.png").convert(), 130, 500)
+        self.buttonThree = utility.Button(pygame.image.load("run3.png").convert(), 230, 500)
+        self.buttonFour = utility.Button(pygame.image.load("run4.png").convert(), 330, 500)
+        self.buttonSix = utility.Button(pygame.image.load("run6.png").convert(), 430, 500)
+        self.addToTotalScore = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 530, 500)
+        self.text = utility.TextRenderer(window)
+        self.scoreThisBall = 0
+        self.score = 0
+
+    def render(self):
+        self.window.fill((53, 92, 125))
+        self.buttonOne.render(self.window)
+        self.buttonTwo.render(self.window)
+        self.buttonThree.render(self.window)
+        self.buttonFour.render(self.window)
+        self.buttonSix.render(self.window)
+        self.addToTotalScore.render(self.window)
+        self.text.setFontSize(48)
+        self.text.drawCenteredText("Total: " + str(self.score), 400, 50)
+        self.text.setFontSize(24)
+        self.text.drawCenteredText("Runs this ball: " + str(self.scoreThisBall), 100, 50)
+        
+    def update(self):
+        if self.buttonOne.isPressed():
+            self.scoreThisBall = 1
+        elif self.buttonTwo.isPressed():
+            self.scoreThisBall = 2
+        elif self.buttonThree.isPressed():
+            self.scoreThisBall = 3
+        elif self.buttonFour.isPressed():
+            self.scoreThisBall = 4
+        elif self.buttonSix.isPressed():
+            self.scoreThisBall = 6
+
+    def pollEvents(self, event):
+        self.buttonOne.pollForEvents(event)
+        self.buttonTwo.pollForEvents(event)
+        self.buttonThree.pollForEvents(event)
+        self.buttonFour.pollForEvents(event)
+        self.buttonSix.pollForEvents(event)
+        self.addToTotalScore.pollForEvents(event)

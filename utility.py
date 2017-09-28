@@ -14,6 +14,13 @@ class TextRenderer:
         self.textSurface = self.textFont.render(text, True, self.colour)
         self.screen.blit(self.textSurface, (posx, posy))
     
+    def drawCenteredText(self, text, posx, posy):
+        size = self.textFont.size(text)
+        finalX = posx - (size[0] / 2)
+        finalY = posy - (size[1] / 2)
+        self.textSurface = self.textFont.render(text, True, self.colour)
+        self.screen.blit(self.textSurface, (finalX, finalY))
+    
     def setFontSize(self, size):
         self.textFont = pygame.font.Font('Roboto-Thin.ttf', size)
 
@@ -38,8 +45,9 @@ class Button:
         return self.pressed
 
 class TextButton:
-    def __init__(self, window, x, y):
+    def __init__(self, window, x, y, fontSize):
         self.textRenderer = TextRenderer(window)
+        self.textRenderer.setFontSize(fontSize)
         self.x = x
         self.y = y
         self.pressed = False
@@ -52,8 +60,7 @@ class TextButton:
             x, y = pygame.mouse.get_pos()
             if x >= self.x and x <= self.x + self.textRenderer.textSurface.get_rect()[2] and y >= self.y and y <= self.y + self.textRenderer.textSurface.get_rect()[3]:
                 self.pressed = True
-        else:
-            self.pressed = False
-
+            else:
+                self.pressed = False
     def isPressed(self):
         return self.pressed

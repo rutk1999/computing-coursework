@@ -9,7 +9,6 @@ class Main:
         self.clock = pygame.time.Clock()
         self.stateManager = states.StateManager(self.window)
         self.menuState = states.MenuState(self.stateManager, self.window)
-        self.playerBrowseState = states.PlayerBrowseState(self.stateManager, self.window)
         self.stateManager.changeState(self.menuState)
         self.running = True
 
