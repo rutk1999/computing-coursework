@@ -35,9 +35,9 @@ class Button:
         window.blit(self.image, (self.x, self.y))
 
     def pollForEvents(self, event):
-        if event.type == pygame.MOUSEBUTTONUP:
-            x, y = pygame.mouse.get_pos()
-            if x >= self.x and x <= self.x + self.image.get_rect()[2] and y >= self.y and y <= self.y + self.image.get_rect()[3]:
+        x, y = pygame.mouse.get_pos()
+        if x >= self.x and x <= self.x + self.image.get_rect()[2] and y >= self.y and y <= self.y + self.image.get_rect()[3]:
+            if event.type == pygame.MOUSEBUTTONUP:
                 self.pressed = True
         else:
             self.pressed = False
