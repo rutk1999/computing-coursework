@@ -30,6 +30,7 @@ class Button:
         self.x = x
         self.y = y
         self.pressed = False
+        self.image.set_alpha(180)
 
     def render(self, window):
         window.blit(self.image, (self.x, self.y))
@@ -39,8 +40,15 @@ class Button:
         if x >= self.x and x <= self.x + self.image.get_rect()[2] and y >= self.y and y <= self.y + self.image.get_rect()[3]:
             if event.type == pygame.MOUSEBUTTONUP:
                 self.pressed = True
+                self.image.set_alpha(220)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.image.set_alpha(255)
+            else:
+                self.image.set_alpha(220)
         else:
             self.pressed = False
+            self.image.set_alpha(180)
+        
     def isPressed(self):
         return self.pressed
 

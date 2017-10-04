@@ -4,7 +4,7 @@ import utility
 
 pygame.init()
 
-##TODO - sort out score in game state
+##TODO - sort out batsmen individual score
 ##
 
 #state manager
@@ -172,51 +172,96 @@ class MatchState(State):
     def __init__(self, stateManager, window):
         super(MatchState, self).__init__(stateManager)
         self.window = window
-        self.buttonOne = utility.Button(pygame.image.load("run1.png").convert(), 30, 500)
-        self.buttonTwo = utility.Button(pygame.image.load("run2.png").convert(), 130, 500)
-        self.buttonThree = utility.Button(pygame.image.load("run3.png").convert(), 230, 500)
-        self.buttonFour = utility.Button(pygame.image.load("run4.png").convert(), 330, 500)
-        self.buttonSix = utility.Button(pygame.image.load("run6.png").convert(), 430, 500)
-        self.buttonWicket = utility.Button(pygame.image.load("wicket.png").convert(), 530, 500)
-        self.addToTotalScore = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 630, 500)
+        self.buttonOne = utility.Button(pygame.image.load("run1.png").convert(), 15, 500)
+        self.buttonTwo = utility.Button(pygame.image.load("run2.png").convert(), 115, 500)
+        self.buttonThree = utility.Button(pygame.image.load("run3.png").convert(), 215, 500)
+        self.buttonFour = utility.Button(pygame.image.load("run4.png").convert(), 315, 500)
+        self.buttonSix = utility.Button(pygame.image.load("run6.png").convert(), 415, 500)
+        self.buttonWicket = utility.Button(pygame.image.load("wicket.png").convert(), 515, 500)
+        self.buttonDot = utility.Button(pygame.image.load("dot.png").convert(), 615, 500)
+        self.addToTotalScore = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 715, 500)
         self.text = utility.TextRenderer(window)
         self.scoreThisBall = 0
         self.score = 0
         self.wicketTaken = 0
         self.totalWickets = 0
-        self.overs = 0.0
+        self.balls = 0
+        self.totalBalls = 0
+        self.ballsThisOver = 0
+        self.overs = 0
+        self.teamNames = []
+        self.allBatsmenScores = [0, 0]
+        self.currentBatsmenScores = [0, 0]
+        self.facingBatsman = 0
+        self.nonFacingBatsman = 1
+        for i in range(len(jsonloader.data["players"])):
+            self.teamNames.append(jsonloader.data["players"][i]["name"])
 
     def render(self):
         self.window.fill((53, 92, 125))
+        pygame.draw.rect(self.window, (80, 80, 80), (0, 20, 800, 60))
         self.buttonOne.render(self.window)
         self.buttonTwo.render(self.window)
         self.buttonThree.render(self.window)
         self.buttonFour.render(self.window)
         self.buttonSix.render(self.window)
         self.buttonWicket.render(self.window)
+        self.buttonDot.render(self.window)
         self.addToTotalScore.render(self.window)
         self.text.setFontSize(48)
         self.text.drawCenteredText("Score: " + str(self.score) + "/" + str(self.totalWickets), 400, 50)
         self.text.setFontSize(24)
         self.text.drawCenteredText("Runs this ball: " + str(self.scoreThisBall), 100, 50)
-        self.text.drawCenteredText("Over: " + str(self.overs), 700, 50)
+        self.text.drawCenteredText("Over: " + str(self.overs) + "." + str(self.ballsThisOver), 700, 50)
+        for i in range(len(self.teamNames)):
+            self.text.drawCenteredText(self.teamNames[i].split(' ', 1)[1], 100, (i*35) + 100)
+        for i in range(len(self.allBatsmenScores)):
+            self.text.drawCenteredText(str(self.allBatsmenScores[i]), 700, (i*35) + 100)
         
     def update(self):
         if self.buttonOne.isPressed():
             self.scoreThisBall = 1
+            self.balls = 1
+            self.wicketTaken = 0
         elif self.buttonTwo.isPressed():
             self.scoreThisBall = 2
+            self.balls = 1
+            self.wicketTaken = 0
         elif self.buttonThree.isPressed():
             self.scoreThisBall = 3
+            self.balls = 1
+            self.wicketTaken = 0
         elif self.buttonFour.isPressed():
             self.scoreThisBall = 4
+            self.balls = 1
+            self.wicketTaken = 0
         elif self.buttonSix.isPressed():
             self.scoreThisBall = 6
+            self.balls = 1
+            self.wicketTaken = 0
         elif self.buttonWicket.isPressed():
             self.wicketTaken = 1
+            self.balls = 1
+        elif self.buttonDot.isPressed():
+            self.balls = 1
+            self.wicketTaken = 0
         if self.addToTotalScore.isPressed():
             self.score += self.scoreThisBall
             self.totalWickets += self.wicketTaken
+            self.totalBalls += self.balls
+            self.currentBatsmenScores[self.facingBatsman] += self.scoreThisBall
+            self.overs = self.totalBalls//6
+            self.ballsThisOver = self.totalBalls % 6
+            if(self.wicketTaken == 1):
+                self.allBatsmenScores.append(0)
+                self.currentBatsmenScores[self.facingBatsman] = 0
+                self.facingBatsman = 1
+            self.allBatsmenScores[self.totalWickets + self.facingBatsman] = self.currentBatsmenScores[self.facingBatsman]
+            if(self.scoreThisBall % 2 == 1):
+                temp = self.facingBatsman
+                self.facingBatsman = self.nonFacingBatsman
+                self.nonFacingBatsman = temp
+            self.balls = 0
             self.scoreThisBall = 0
             self.wicketTaken = 0
 
@@ -227,4 +272,6 @@ class MatchState(State):
         self.buttonFour.pollForEvents(event)
         self.buttonSix.pollForEvents(event)
         self.buttonWicket.pollForEvents(event)
+        self.buttonDot.pollForEvents(event)
         self.addToTotalScore.pollForEvents(event)
+        

@@ -22,7 +22,6 @@ def saveFile(fileJSON):
         json.dump(fileJSON, outfile)
 
 data = readJson("data.txt")
-print(data)
 saveFile(data)
 
 
