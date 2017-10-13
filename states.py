@@ -6,7 +6,6 @@ pygame.init()
 
 ##TODO - sort out batsmen individual score
 ##
-
 #state manager
 class StateManager():
     def __init__(self, window):
@@ -29,8 +28,6 @@ class StateManager():
 class State():
     def __init__(self, stateManager):
         #these are for indicating whether it should move to the next state
-        #self.changeState = False
-        #self.nextState = ""
         self.stateManager = stateManager
 
     def render(self, window):
@@ -58,7 +55,7 @@ class PlayerBrowseState(State):
             self.players.append(player)
 
     def render(self):
-        self.window.fill((53, 92, 125))
+        self.window.fill((0, 153, 51))
         for i in range(len(self.players)):
             self.players[i].render(jsonloader.data["players"][i]["name"])
         self.menuButton.render(self.window)
@@ -100,7 +97,7 @@ class PlayerStatisticsState(State):
         self.menuButton.render(self.window)
 
     def update(self):
-        self.window.fill((53, 92, 125))
+        self.window.fill((0, 153, 51))
         if self.playerStatisticsButton.isPressed():
             self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
         if self.menuButton.isPressed():
@@ -117,12 +114,12 @@ class MenuState(State):
         self.window = window
         self.util = utility.TextRenderer(window)
         self.util.setFontSize(16)
-        self.playerBrowseButton = utility.Button(pygame.image.load("BrowsePlayers.png").convert(), 272, 230)
-        self.createMatchButton = utility.Button(pygame.image.load("CreateMatchButton.png").convert(), 272, 400)
-        self.titleText = utility.Button(pygame.image.load("TitleText.png").convert_alpha(), 208, 50)
+        self.playerBrowseButton = utility.Button(pygame.image.load("BrowsePlayers.png").convert(), 548, 230)
+        self.createMatchButton = utility.Button(pygame.image.load("CreateMatchButton.png").convert(), 548, 400)
+        self.titleText = utility.Button(pygame.image.load("TitleText.png").convert_alpha(), 478, 50)
 
     def render(self):
-        self.window.fill((53, 92, 125))
+        self.window.fill((0, 153, 51))
         self.playerBrowseButton.render(self.window)  
         self.createMatchButton.render(self.window)
         self.titleText.render(self.window)
@@ -147,7 +144,7 @@ class PlayerCreationState(State):
         self.addPlayerButton = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 368, 500)
 
     def render(self):
-        self.window.fill((53, 92, 125))
+        self.window.fill((0, 153, 51))
         self.text.setFontSize(48)
         self.text.drawCenteredText("Add a Player", 400, 100)
         #self.inputBox.render(self.window)
@@ -172,14 +169,12 @@ class MatchState(State):
     def __init__(self, stateManager, window):
         super(MatchState, self).__init__(stateManager)
         self.window = window
-        self.buttonOne = utility.Button(pygame.image.load("run1.png").convert(), 15, 500)
-        self.buttonTwo = utility.Button(pygame.image.load("run2.png").convert(), 115, 500)
-        self.buttonThree = utility.Button(pygame.image.load("run3.png").convert(), 215, 500)
-        self.buttonFour = utility.Button(pygame.image.load("run4.png").convert(), 315, 500)
-        self.buttonSix = utility.Button(pygame.image.load("run6.png").convert(), 415, 500)
-        self.buttonWicket = utility.Button(pygame.image.load("wicket.png").convert(), 515, 500)
-        self.buttonDot = utility.Button(pygame.image.load("dot.png").convert(), 615, 500)
-        self.addToTotalScore = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 715, 500)
+        buttonFiles = ["run1.png", "run2.png", "run3.png", "run4.png", "run5.png", "run6.png", "wicket.png", "dot.png", "AddPlayerButton.png"]
+        self.buttons = []
+        offset = 100
+        spacing = 120
+        for i in range(len(buttonFiles)):
+            self.buttons.append(utility.Button(pygame.image.load(buttonFiles[i]).convert(), offset + (i * spacing), 630)) 
         self.text = utility.TextRenderer(window)
         self.scoreThisBall = 0
         self.score = 0
@@ -198,54 +193,51 @@ class MatchState(State):
             self.teamNames.append(jsonloader.data["players"][i]["name"])
 
     def render(self):
-        self.window.fill((53, 92, 125))
-        pygame.draw.rect(self.window, (80, 80, 80), (0, 20, 800, 60))
-        self.buttonOne.render(self.window)
-        self.buttonTwo.render(self.window)
-        self.buttonThree.render(self.window)
-        self.buttonFour.render(self.window)
-        self.buttonSix.render(self.window)
-        self.buttonWicket.render(self.window)
-        self.buttonDot.render(self.window)
-        self.addToTotalScore.render(self.window)
+        self.window.fill((0, 153, 51))
+        #banner for score
+        pygame.draw.rect(self.window, (80, 80, 80), (0, 20, 1280, 60))
+        #banner for scorecard
+        pygame.draw.rect(self.window, (22, 160, 68), (5, 90, 600, 500))
+        for i in range(len(self.buttons)):
+            self.buttons[i].render(self.window)
         self.text.setFontSize(48)
-        self.text.drawCenteredText("Score: " + str(self.score) + "/" + str(self.totalWickets), 400, 50)
+        self.text.drawCenteredText("Score: " + str(self.score) + "/" + str(self.totalWickets), 640, 50)
         self.text.setFontSize(24)
         self.text.drawCenteredText("Runs this ball: " + str(self.scoreThisBall), 100, 50)
-        self.text.drawCenteredText("Over: " + str(self.overs) + "." + str(self.ballsThisOver), 700, 50)
+        self.text.drawCenteredText("Over: " + str(self.overs) + "." + str(self.ballsThisOver), 1080, 50)
         for i in range(len(self.teamNames)):
-            self.text.drawCenteredText(self.teamNames[i].split(' ', 1)[1], 100, (i*35) + 100)
+            self.text.drawCenteredText(self.teamNames[i].split(' ', 1)[1], 100, (i*40) + 120)
         for i in range(len(self.allBatsmenScores)):
-            self.text.drawCenteredText(str(self.allBatsmenScores[i]), 700, (i*35) + 100)
+            self.text.drawCenteredText(str(self.allBatsmenScores[i]), 520, (i*40) + 120)
         
     def update(self):
-        if self.buttonOne.isPressed():
+        if self.buttons[0].isPressed():
             self.scoreThisBall = 1
             self.balls = 1
             self.wicketTaken = 0
-        elif self.buttonTwo.isPressed():
+        elif self.buttons[1].isPressed():
             self.scoreThisBall = 2
             self.balls = 1
             self.wicketTaken = 0
-        elif self.buttonThree.isPressed():
+        elif self.buttons[2].isPressed():
             self.scoreThisBall = 3
             self.balls = 1
             self.wicketTaken = 0
-        elif self.buttonFour.isPressed():
+        elif self.buttons[3].isPressed():
             self.scoreThisBall = 4
             self.balls = 1
             self.wicketTaken = 0
-        elif self.buttonSix.isPressed():
+        elif self.buttons[5].isPressed():
             self.scoreThisBall = 6
             self.balls = 1
             self.wicketTaken = 0
-        elif self.buttonWicket.isPressed():
+        elif self.buttons[6].isPressed():
             self.wicketTaken = 1
             self.balls = 1
-        elif self.buttonDot.isPressed():
+        elif self.buttons[7].isPressed():
             self.balls = 1
             self.wicketTaken = 0
-        if self.addToTotalScore.isPressed():
+        if self.buttons[8].isPressed():
             self.score += self.scoreThisBall
             self.totalWickets += self.wicketTaken
             self.totalBalls += self.balls
@@ -255,7 +247,6 @@ class MatchState(State):
             if(self.wicketTaken == 1):
                 self.allBatsmenScores.append(0)
                 self.currentBatsmenScores[self.facingBatsman] = 0
-                self.facingBatsman = 1
             self.allBatsmenScores[self.totalWickets + self.facingBatsman] = self.currentBatsmenScores[self.facingBatsman]
             if(self.scoreThisBall % 2 == 1):
                 temp = self.facingBatsman
@@ -266,12 +257,6 @@ class MatchState(State):
             self.wicketTaken = 0
 
     def pollEvents(self, event):
-        self.buttonOne.pollForEvents(event)
-        self.buttonTwo.pollForEvents(event)
-        self.buttonThree.pollForEvents(event)
-        self.buttonFour.pollForEvents(event)
-        self.buttonSix.pollForEvents(event)
-        self.buttonWicket.pollForEvents(event)
-        self.buttonDot.pollForEvents(event)
-        self.addToTotalScore.pollForEvents(event)
+        for i in range(len(self.buttons)):
+            self.buttons[i].pollForEvents(event)
         

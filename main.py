@@ -4,8 +4,8 @@ pygame.init()
 pygame.font.init()
 
 class Main:
-    def init(self):
-        self.window = pygame.display.set_mode((800, 600))
+    def __init__(self):
+        self.window = pygame.display.set_mode((1280, 720))
         self.clock = pygame.time.Clock()
         self.stateManager = states.StateManager(self.window)
         self.menuState = states.MenuState(self.stateManager, self.window)
@@ -32,7 +32,6 @@ class Main:
             self.clock.tick(60)
 
 main = Main()
-main.init()
 main.loop()
 
 pygame.quit()
