@@ -21,7 +21,7 @@ def saveFile(fileJSON):
     with open('data.txt', 'w') as outfile:
         json.dump(fileJSON, outfile)
 
-data = readJson("data.txt")
+data = readJson("resources/data.txt")
 saveFile(data)
 
 

@@ -45,8 +45,8 @@ class PlayerBrowseState(State):
         super(PlayerBrowseState, self).__init__(stateManager)
         self.window = window
         self.util = utility.TextRenderer(window)
-        self.menuButton = utility.Button(pygame.image.load("MenuButton.png").convert(), 272, 500)
-        self.createPlayerButton = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 650, 500)
+        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 540, 630)
+        self.createPlayerButton = utility.Button(pygame.image.load("resources/AddPlayerButton.png").convert(), 1200, 630)
         self.players = []
         self.offset = 10
         self.fontSize = 24
@@ -83,8 +83,8 @@ class PlayerStatisticsState(State):
         self.window = window
         self.playerInfo = playerInfo
         self.playerStats = utility.TextRenderer(self.window)
-        self.playerStatisticsButton = utility.Button(pygame.image.load("BrowsePlayers.png").convert(), 100, 500)
-        self.menuButton = utility.Button(pygame.image.load("MenuButton.png").convert(), 428, 500)
+        self.playerStatisticsButton = utility.Button(pygame.image.load("resources/BrowsePlayers.png").convert(), 100, 500)
+        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 428, 500)
 
     def render(self):
         self.playerStats.setFontSize(48)
@@ -114,9 +114,9 @@ class MenuState(State):
         self.window = window
         self.util = utility.TextRenderer(window)
         self.util.setFontSize(16)
-        self.playerBrowseButton = utility.Button(pygame.image.load("BrowsePlayers.png").convert(), 548, 230)
-        self.createMatchButton = utility.Button(pygame.image.load("CreateMatchButton.png").convert(), 548, 400)
-        self.titleText = utility.Button(pygame.image.load("TitleText.png").convert_alpha(), 478, 50)
+        self.playerBrowseButton = utility.Button(pygame.image.load("resources/BrowsePlayers.png").convert(), 548, 230)
+        self.createMatchButton = utility.Button(pygame.image.load("resources/CreateMatchButton.png").convert(), 548, 400)
+        self.titleText = utility.Button(pygame.image.load("resources/TitleText.png").convert_alpha(), 478, 50)
 
     def render(self):
         self.window.fill((0, 153, 51))
@@ -141,7 +141,7 @@ class PlayerCreationState(State):
         self.window = window
         self.text = utility.TextRenderer(window)
         #self.inputBox = InLineTextBox((400, 200), 200, color=(255, 255, 255), bg_color=(0, 0, 0))
-        self.addPlayerButton = utility.Button(pygame.image.load("AddPlayerButton.png").convert(), 368, 500)
+        self.addPlayerButton = utility.Button(pygame.image.load("resources/AddPlayerButton.png").convert(), 368, 500)
 
     def render(self):
         self.window.fill((0, 153, 51))
@@ -174,7 +174,7 @@ class MatchState(State):
         offset = 100
         spacing = 120
         for i in range(len(buttonFiles)):
-            self.buttons.append(utility.Button(pygame.image.load(buttonFiles[i]).convert(), offset + (i * spacing), 630)) 
+            self.buttons.append(utility.Button(pygame.image.load("resources/" + buttonFiles[i]).convert(), offset + (i * spacing), 630)) 
         self.text = utility.TextRenderer(window)
         self.scoreThisBall = 0
         self.score = 0

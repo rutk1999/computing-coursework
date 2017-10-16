@@ -7,7 +7,7 @@ class TextRenderer:
         self.screen = window
         self.defaultSize = 32
         self.colour = (255, 255, 255)
-        self.textFont = pygame.font.Font('Roboto-Thin.ttf', self.defaultSize) 
+        self.textFont = pygame.font.Font('resources/Roboto-Thin.ttf', self.defaultSize) 
         self.textSurface = self.textFont.render("", True, self.colour)
 
     def drawText(self, text, posx, posy):
@@ -22,7 +22,7 @@ class TextRenderer:
         self.screen.blit(self.textSurface, (finalX, finalY))
     
     def setFontSize(self, size):
-        self.textFont = pygame.font.Font('Roboto-Thin.ttf', size)
+        self.textFont = pygame.font.Font('resources/Roboto-Thin.ttf', size)
 
 class Button:
     def __init__(self, image, x, y):
