@@ -83,16 +83,16 @@ class PlayerStatisticsState(State):
         self.window = window
         self.playerInfo = playerInfo
         self.playerStats = utility.TextRenderer(self.window)
-        self.playerStatisticsButton = utility.Button(pygame.image.load("resources/BrowsePlayers.png").convert(), 100, 500)
-        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 428, 500)
+        self.playerStatisticsButton = utility.Button(pygame.image.load("resources/BrowsePlayers.png").convert(), 340, 630)
+        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 668, 630)
 
     def render(self):
         self.playerStats.setFontSize(48)
-        self.playerStats.drawCenteredText(self.playerInfo["name"], 400, 100)
+        self.playerStats.drawCenteredText(self.playerInfo["name"], 640, 100)
         self.playerStats.setFontSize(32)
-        self.playerStats.drawCenteredText("Age: " + self.playerInfo["age"], 400, 200)    
-        self.playerStats.drawCenteredText("Runs: " + self.playerInfo["runsScored"], 400, 250)    
-        self.playerStats.drawCenteredText("Wickets: " + self.playerInfo["wicketsTaken"], 400, 300)   
+        self.playerStats.drawCenteredText("Age: " + self.playerInfo["age"], 640, 200)    
+        self.playerStats.drawCenteredText("Runs: " + self.playerInfo["runsScored"], 640, 250)    
+        self.playerStats.drawCenteredText("Wickets: " + self.playerInfo["wicketsTaken"], 640, 300)   
         self.playerStatisticsButton.render(self.window)
         self.menuButton.render(self.window)
 
@@ -142,19 +142,28 @@ class PlayerCreationState(State):
         self.text = utility.TextRenderer(window)
         self.inputBox = utility.TextInput(window, 510, 200, 24)
         self.addPlayerButton = utility.Button(pygame.image.load("resources/AddPlayerButton.png").convert(), 608, 630)
-
+        self.playerData = ''
+        self.playerName = ''
+        self.playerAge = ''
+        
     def render(self):
         self.window.fill((0, 153, 51))
         self.text.setFontSize(48)
         self.text.drawCenteredText("Add a Player", 640, 100)
-        #self.inputBox.render(self.window)
+        self.text.setFontSize(24)
+        self.text.drawCenteredText("To add a player, enter the player name followed by a ':', then enter the age.", 640, 560)
+        self.text.drawCenteredText("An example is 'Alastair Cook: 30'", 640, 600)
         self.addPlayerButton.render(self.window)
         self.inputBox.render()
     
     def update(self):
         if self.addPlayerButton.isPressed():
-            print(self.inputBox.getText())
-    
+            self.playerData = self.inputBox.getText().split(":")
+            self.playerName = self.playerData[0]
+            self.playerAge = self.playerData[1].strip()
+            jsonloader.addPlayer(jsonloader.data, self.playerName, self.playerAge)
+            self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
+            
     def pollEvents(self, event):
         #self.inputBox.update(event)
         self.addPlayerButton.pollForEvents(event)

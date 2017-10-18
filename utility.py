@@ -87,7 +87,8 @@ class TextInput:
         self.oscillation = 0
         self.blinkColour = (0, 0, 0)
         self.blinkSpeed = 5
-        self.offset = 0
+        self.capsOffset = 0
+        self.colonOffset = 0
 
     def render(self):
         self.oscillation = math.sin((pygame.time.get_ticks() / 1000) * self.blinkSpeed)
@@ -107,11 +108,23 @@ class TextInput:
                     return
                 else:
                     self.textBuffer.pop()
+            #if the left shift button is pressed
             elif event.key == pygame.K_LSHIFT:
-                self.offset = 32
+                    self.capsOffset = 32
+                    self.colonOffset = 1
             else:
-                self.textBuffer.append(chr(event.key - self.offset))
-                self.offset = 0
+                #if it is a lowercase letter
+                if event.key > 96 and event.key < 123:
+                    self.textBuffer.append(chr(event.key - self.capsOffset))
+                #if it is semicolon, so the user can have a colon
+                elif event.key == 59:
+                    print("it works")
+                    self.textBuffer.append(chr(event.key - self.colonOffset))
+                else:
+                    self.textBuffer.append(chr(event.key))
+                print(event.key)
+                self.capsOffset = 0
+                self.colonOffset = 0
                 print(self.textBuffer)
 
     def getText(self):

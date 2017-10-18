@@ -10,7 +10,7 @@ class Main:
         self.stateManager = states.StateManager(self.window)
         self.menuState = states.MenuState(self.stateManager, self.window)
         self.testState = states.PlayerCreationState(self.stateManager, self.window)
-        self.stateManager.changeState(self.testState)
+        self.stateManager.changeState(self.menuState)
         self.running = True
 
     def update(self, events):
