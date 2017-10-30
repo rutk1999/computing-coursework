@@ -92,7 +92,8 @@ class PlayerStatisticsState(State):
         self.playerStats.setFontSize(32)
         self.playerStats.drawCenteredText("Age: " + self.playerInfo["age"], 640, 200)    
         self.playerStats.drawCenteredText("Runs: " + self.playerInfo["runsScored"], 640, 250)    
-        self.playerStats.drawCenteredText("Wickets: " + self.playerInfo["wicketsTaken"], 640, 300)   
+        self.playerStats.drawCenteredText("Wickets: " + self.playerInfo["wicketsTaken"], 640, 300)
+        self.playerStats.drawCenteredText("Team: " + self.playerInfo["team"], 640, 350)   
         self.playerStatisticsButton.render(self.window)
         self.menuButton.render(self.window)
 
@@ -128,7 +129,7 @@ class MenuState(State):
         if self.playerBrowseButton.isPressed():
             self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
         if self.createMatchButton.isPressed():
-            self.stateManager.changeState(MatchState(self.stateManager, self.window))
+            self.stateManager.changeState(MatchCreationState(self.stateManager, self.window))
 
     def pollEvents(self, event):
         self.playerBrowseButton.pollForEvents(event)     
@@ -151,8 +152,8 @@ class PlayerCreationState(State):
         self.text.setFontSize(48)
         self.text.drawCenteredText("Add a Player", 640, 100)
         self.text.setFontSize(24)
-        self.text.drawCenteredText("To add a player, enter the player name followed by a ':', then enter the age.", 640, 560)
-        self.text.drawCenteredText("An example is 'Alastair Cook: 30'", 640, 600)
+        self.text.drawCenteredText("To add a player, enter the player name followed by a ':', then enter the age and team.", 640, 560)
+        self.text.drawCenteredText("An example is 'Alastair Cook:30 England'", 640, 600)
         self.addPlayerButton.render(self.window)
         self.inputBox.render()
     
@@ -160,8 +161,10 @@ class PlayerCreationState(State):
         if self.addPlayerButton.isPressed():
             self.playerData = self.inputBox.getText().split(":")
             self.playerName = self.playerData[0]
-            self.playerAge = self.playerData[1].strip()
-            jsonloader.addPlayer(jsonloader.data, self.playerName, self.playerAge)
+            self.playerInfo = self.playerData[1].split(" ")
+            self.playerAge = self.playerInfo[0]
+            self.playerTeam = self.playerInfo[1]
+            jsonloader.addPlayer(jsonloader.data, self.playerName, self.playerAge, self.playerTeam)
             self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
             
     def pollEvents(self, event):
@@ -169,11 +172,58 @@ class PlayerCreationState(State):
         self.addPlayerButton.pollForEvents(event)
         self.inputBox.pollForEvents(event)
 
+#creating the match state
+##TODO fix this
+class MatchCreationState(State):
+    def __init__(self, stateManager, window):
+        super(MatchCreationState, self).__init__(stateManager)
+        self.window = window
+        self.text = utility.TextRenderer(window)
+        #get the teams from the json file
+        self.teams = jsonloader.data["teams"]
+        #list which will loop through all of the players and find valid teams to display
+        self.validTeams = []
+        self.teamButtons = []
+        #checks to see the valid teams from the collection
+        for x in range(len(jsonloader.data["players"])):
+            for y in range(len(jsonloader.data["teams"])):
+                if jsonloader.data["players"][x]["team"] == jsonloader.data["teams"][y]:
+                    if jsonloader.data["teams"][y] in self.validTeams:
+                        pass
+                    else:
+                        self.validTeams.append(jsonloader.data["players"][x]["team"])
+        for i in range(len(self.validTeams)):
+            team = utility.TextButton(self.window, 100, 500 + (40 * i), 24)
+            self.teamButtons.append(team)
+        self.teamOne = ''
+        self.teamTwo = ''
+
+    def render(self):
+        self.window.fill((0, 153, 51))
+        self.text.setFontSize(48)
+        self.text.drawCenteredText("Create a match", 640, 100)
+        self.text.drawCenteredText(self.teamOne + " Vs " + self.teamTwo, 640, 300)
+        for i in range(len(self.teamButtons)):
+            self.teamButtons[i].render(self.validTeams[i])
+
+    def update(self):
+        for i in range(len(self.teamButtons)):
+            if self.teamButtons[i].isPressed():
+                if(len(self.teamOne) > 1):
+                    self.teamTwo = self.validTeams[i]
+                else:
+                    self.teamOne = self.validTeams[i]
+
+    def pollEvents(self, event):
+        for i in range(len(self.teamButtons)):
+            self.teamButtons[i].pollForEvents(event)
+
+#match state-heavily broken
 class MatchState(State):
     def __init__(self, stateManager, window):
         super(MatchState, self).__init__(stateManager)
         self.window = window
-        buttonFiles = ["run1.png", "run2.png", "run3.png", "run4.png", "run5.png", "run6.png", "wicket.png", "dot.png", "AddPlayerButton.png"]
+        buttonFiles = ["run1.png", "run2.png", "run3.png", "run4.png", "run5.png", "run6.png", "wicket1.png", "wicket2.png", "dot.png", "AddPlayerButton.png"]
         self.buttons = []
         offset = 100
         spacing = 120
@@ -193,6 +243,7 @@ class MatchState(State):
         self.currentBatsmenScores = [0, 0]
         self.facingBatsman = 0
         self.nonFacingBatsman = 1
+        self.batsmanOut = 0
         for i in range(len(jsonloader.data["players"])):
             self.teamNames.append(jsonloader.data["players"][i]["name"])
 
@@ -212,9 +263,6 @@ class MatchState(State):
         for i in range(len(self.teamNames)):
             self.text.drawCenteredText(self.teamNames[i].split(' ', 1)[1], 100, (i*40) + 120)
         for i in range(len(self.allBatsmenScores)):
-            if(self.allBatsmenScores[i] == self.allBatsmenScores[self.totalWickets + self.facingBatsman]):
-                self.text.drawCenteredText(str(self.allBatsmenScores[i]) + "*", 520, (i*40) + 120)
-            else:
                 self.text.drawCenteredText(str(self.allBatsmenScores[i]), 520, (i*40) + 120)
         self.text.drawCenteredText("Current batsmen: " + str(self.currentBatsmenScores), 820, 120)
         self.text.drawCenteredText("All batsmen scores: " + str(self.allBatsmenScores), 820, 240)
@@ -243,11 +291,16 @@ class MatchState(State):
             self.wicketTaken = 0
         elif self.buttons[6].isPressed():
             self.wicketTaken = 1
+            self.batsmanOut = 1
             self.balls = 1
         elif self.buttons[7].isPressed():
+            self.wicketTaken = 1
+            self.batsmanOut = 2
+            self.balls = 1
+        elif self.buttons[8].isPressed():
             self.balls = 1
             self.wicketTaken = 0
-        if self.buttons[8].isPressed():
+        if self.buttons[9].isPressed():
             self.score += self.scoreThisBall
             self.totalWickets += self.wicketTaken
             self.totalBalls += self.balls
@@ -256,7 +309,7 @@ class MatchState(State):
             self.ballsThisOver = self.totalBalls % 6
             if(self.wicketTaken == 1):
                 self.allBatsmenScores.append(0)
-                self.currentBatsmenScores[self.facingBatsman] = 0
+                self.currentBatsmenScores[self.batsmanOut-1] = 0
             self.allBatsmenScores[self.totalWickets + self.facingBatsman] = self.currentBatsmenScores[self.facingBatsman]
             if(self.scoreThisBall % 2 == 1):
                 temp = self.facingBatsman

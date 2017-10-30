@@ -9,8 +9,8 @@ def readJson(fileName):
 def addObjectToList(fileJSON, element, field, value):
     fileJSON[element].append({field : value})
     
-def addPlayer(fileJSON, playerName, playerAge):
-    fileJSON["players"].append({"name" : playerName, "age" : playerAge, "matchesPlayed" : "0", "runsScored" : "0", "wicketsTaken" : "0"})    
+def addPlayer(fileJSON, playerName, playerAge, playerTeam):
+    fileJSON["players"].append({"name" : playerName, "age" : playerAge, "matchesPlayed" : "0", "runsScored" : "0", "wicketsTaken" : "0", "team" : playerTeam})    
 
 def deletePlayer(fileJSON, playerName):
     for i in range(len(fileJSON["players"])):
