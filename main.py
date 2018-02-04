@@ -9,8 +9,9 @@ class Main:
         self.clock = pygame.time.Clock()
         self.stateManager = states.StateManager(self.window)
         self.menuState = states.MenuState(self.stateManager, self.window)
-        self.testState = states.PlayerCreationState(self.stateManager, self.window)
-        self.stateManager.changeState(self.menuState)
+        self.testState = states.MatchState(self.stateManager, self.window, "England", "New Zealand", "New Zealand")
+        self.test2State = states.MatchCreationState(self.stateManager, self.window)
+        self.stateManager.changeState(self.testState)
         self.running = True
 
     def update(self, events):
@@ -18,7 +19,6 @@ class Main:
             if event.type == pygame.QUIT:
                 self.running = False
             self.stateManager.pollEvents(event)
-        
         self.stateManager.update()
 
     def render(self):  
@@ -31,7 +31,7 @@ class Main:
             self.render()
             pygame.display.update()
             self.clock.tick(60)
-
+            
 main = Main()
 main.loop()
 

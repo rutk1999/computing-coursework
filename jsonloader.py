@@ -17,11 +17,21 @@ def deletePlayer(fileJSON, playerName):
         if fileJSON["players"][i]["name"] == playerName:
             del fileJSON["players"][i]
 
+def increaseMatchCounter(fileJSON, playerName):
+    for i in range(len(fileJSON["players"])):
+        if fileJSON["players"][i]["name"] == playerName:
+            fileJSON["players"][i]["matchesPlayed"] = str(1 + int(fileJSON["players"][i]["matchesPlayed"]))
+            pass
+        
+#todo do this
+def addPlayerStats(fileJSON, playerName, runs, wickets):
+    for i in range(len(fileJSON["players"])):
+        if fileJSON["players"][i]["name"] == playerName:
+            fileJSON["players"][i]["runsScored"] = str(runs + int(fileJSON["players"][i]["runsScored"]))
+            fileJSON["players"][i]["wicketsTaken"] = str(wickets + int(fileJSON["players"][i]["wicketsTaken"]))
+
 def saveFile(fileJSON):
-    with open('data.txt', 'w') as outfile:
+    with open('data.json', 'w') as outfile:
         json.dump(fileJSON, outfile)
 
-data = readJson("resources/data.txt")
-saveFile(data)
-
-
+data = readJson("data.json")

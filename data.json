@@ -1,0 +1,34 @@
+{"players": 
+	[
+		{"name": "James Anderson", "runsScored": "50", "age": "30", "matchesPlayed": "10", "team": "England", "wicketsTaken": "30"}, 
+		{"name": "Stuart Broad", "runsScored": "120", "age": "29", "matchesPlayed": "15", "team": "England", "wicketsTaken": "51"}, 
+		{"name": "Joe Root", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Alastair Cook", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Mark Stoneman", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Jonny Bairstow", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Chris Woakes", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Ben Stokes", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Moeen Ali", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}, 
+		{"name": "Kane Williamson", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Trent Boult", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"}, 
+		{"name": "Brendon McCullum", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Ross Taylor", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Martin Guptill", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Tom Latham", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Tim Southee", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "BJ Watling", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Corey Anderson", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "New Zealand", "wicketsTaken": "3"},
+		{"name": "Jason Roy", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"},
+		{"name": "Chris Jordan", "runsScored": "500", "age": "27", "matchesPlayed": "12", "team": "England", "wicketsTaken": "3"}
+	], 
+ "teams": 
+	[
+		{"teamName": "England", "wins": "0"}, 
+		{"teamName": "India"},
+		{"teamName": "South Africa", "wins": "0"}, 
+		{"teamName": "Sri Lanka", "wins": "0"},
+		{"teamName": "Australia", "wins": "0"},
+		{"teamName": "New Zealand", "wins": "0"},
+		{"teamName": "West Indies", "wins": "0"}
+	]
+}
