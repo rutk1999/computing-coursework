@@ -39,43 +39,60 @@ class State():
     def pollEvents(self, event):
         raise NotImplementedError
 
-#player browsing screen
+#TODO make this work with text input
 class PlayerBrowseState(State):
     def __init__(self, stateManager, window):
         super(PlayerBrowseState, self).__init__(stateManager)
         self.window = window
-        self.util = utility.TextRenderer(window)
-        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 540, 630)
+        self.text = utility.TextRenderer(window)
+        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 520, 630)
         self.createPlayerButton = utility.Button(pygame.image.load("resources/AddPlayerButton.png").convert(), 1200, 630)
-        self.players = []
         self.offset = 10
         self.fontSize = 24
-        for i in range(len(jsonloader.data["players"])):
-            player = utility.TextButton(self.window, self.offset, (i * (self.fontSize * 1.5)) + self.offset, self.fontSize)
-            self.players.append(player)
+        self.playerInput = utility.TextInput(self.window, 0, 0, 24)
+        self.playerString = ""
+
+        #for i in range(len(jsonloader.data["players"])):
+            #player = utility.TextButton(self.window, self.offset, (i * (self.fontSize * 1.5)) + self.offset, self.fontSize)
+            #self.players.append(player)
 
     def render(self):
         self.window.fill((0, 153, 51))
-        for i in range(len(self.players)):
-            self.players[i].render(jsonloader.data["players"][i]["name"])
+        #for i in range(len(self.players)):
+            #self.players[i].render(jsonloader.data["players"][i]["name"])
+        self.text.drawCenteredText("Search for a player", 640, 150)
         self.menuButton.render(self.window)
         self.createPlayerButton.render(self.window)
+        self.playerInput.render()
 
     def update(self):
         if self.menuButton.isPressed():
             self.stateManager.changeState(MenuState(self.stateManager, self.window))
         if self.createPlayerButton.isPressed():
             self.stateManager.changeState(PlayerCreationState(self.stateManager, self.window))
-        for i in range(len(self.players)):
-            if self.players[i].isPressed():
-                self.stateManager.changeState(PlayerStatisticsState(self.stateManager, self.window, jsonloader.data["players"][i]))
-        
+        #for i in range(len(self.players)):
+            #if self.players[i].isPressed():
+                #self.stateManager.changeState(PlayerStatisticsState(self.stateManager, self.window, jsonloader.data["players"][i]))    
+                    
     def pollEvents(self, event):
         self.menuButton.pollForEvents(event)
         self.createPlayerButton.pollForEvents(event)
-        for i in range(len(self.players)):
-            self.players[i].pollForEvents(event)
+        self.playerInput.pollForEvents(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                self.playerString = self.playerInput.getText()
+                self.playerInput.clearText()
+                self.searchForPlayer()
+        #for i in range(len(self.players)):
+            #self.players[i].pollForEvents(event)
 
+    def searchForPlayer(self):
+        for i in range(len(jsonloader.data["players"])):
+            print(jsonloader.data["players"][i]["name"] + " is compared to " + self.playerString)
+            if jsonloader.data["players"][i]["name"] == self.playerString:
+                print("true")
+                self.stateManager.changeState(PlayerStatisticsState(self.stateManager, self.window, jsonloader.data["players"][i]))
+        
 #player stats screen
 class PlayerStatisticsState(State):
     def __init__(self, stateManager, window, playerInfo):
@@ -116,13 +133,15 @@ class MenuState(State):
         self.util = utility.TextRenderer(window)
         self.util.setFontSize(16)
         self.playerBrowseButton = utility.Button(pygame.image.load("resources/BrowsePlayers.png").convert(), 548, 230)
-        self.createMatchButton = utility.Button(pygame.image.load("resources/CreateMatchButton.png").convert(), 548, 400)
+        self.createMatchButton = utility.Button(pygame.image.load("resources/CreateMatchButton.png").convert(), 548, 350)
+        self.createTeamButton = utility.Button(pygame.image.load("resources/CreateTeamButton.png").convert(), 548, 470)
         self.titleText = utility.Button(pygame.image.load("resources/TitleText.png").convert_alpha(), 478, 50)
 
     def render(self):
         self.window.fill((0, 153, 51))
         self.playerBrowseButton.render(self.window)  
         self.createMatchButton.render(self.window)
+        self.createTeamButton.render(self.window)
         self.titleText.render(self.window)
 
     def update(self):
@@ -130,10 +149,46 @@ class MenuState(State):
             self.stateManager.changeState(PlayerBrowseState(self.stateManager, self.window))
         if self.createMatchButton.isPressed():
             self.stateManager.changeState(MatchCreationState(self.stateManager, self.window))
+        if self.createTeamButton.isPressed():
+            self.stateManager.changeState(TeamCreationState(self.stateManager, self.window))
 
     def pollEvents(self, event):
         self.playerBrowseButton.pollForEvents(event)     
         self.createMatchButton.pollForEvents(event)
+        self.createTeamButton.pollForEvents(event)
+
+#team creation state - very similar to player creation state
+class TeamCreationState(State):
+    def __init__(self, stateManager, window):
+        super(TeamCreationState, self).__init__(stateManager)
+        self.window = window
+        self.stateManager = stateManager
+        self.text = utility.TextRenderer(window)
+        self.teamInput = utility.TextInput(window, 0, 0, 24)
+        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 520, 630)
+
+    def render(self):
+        self.window.fill((0, 153, 51))
+        self.text.setFontSize(48)
+        self.text.drawCenteredText("Add a Team", 640, 100)
+        self.teamInput.render()
+        self.menuButton.render(self.window)
+
+    def update(self):
+        if self.menuButton.isPressed():
+            self.stateManager.changeState(MenuState(self.stateManager, self.window))
+
+    def pollEvents(self, event):
+        self.teamInput.pollForEvents(event)
+        self.menuButton.pollForEvents(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                self.addTeam(self.teamInput.getText())
+                self.stateManager.changeState(MenuState(self.stateManager, self.window))
+
+    def addTeam(self, teamName):
+        jsonloader.addTeam(jsonloader.data, teamName)
+        jsonloader.saveFile(jsonloader.data)
 
 #player creation state
 class PlayerCreationState(State):
@@ -162,6 +217,7 @@ class PlayerCreationState(State):
             self.playerData = self.inputBox.getText().split(":")
             self.playerName = self.playerData[0]
             self.playerInfo = self.playerData[1].split(" ")
+            print(self.playerInfo)
             self.playerAge = self.playerInfo[0]
             self.playerTeam = self.playerInfo[1]
             jsonloader.addPlayer(jsonloader.data, self.playerName, self.playerAge, self.playerTeam)
@@ -193,37 +249,39 @@ class MatchCreationState(State):
                         pass
                     else:
                         self.validTeams.append(jsonloader.data["players"][x]["team"])
+        #text input for user to enter team
+        self.teamInput = utility.TextInput(self.window, 0, 0, 24)
         self.teamOne = ""
         self.teamTwo = ""
         self.offset = 0
-        self.teamOneButton = utility.TextButton(self.window, 620, 450, 24)
-        self.teamTwoButton = utility.TextButton(self.window, 660, 450, 24)
+        self.teamOneButton = utility.TextButton(self.window, 400, 450, 24)
+        self.teamTwoButton = utility.TextButton(self.window, 800, 450, 24)
         self.canChangeState = False
+        self.askOvers = False
+        self.overs = 0
 
     def render(self):
         self.window.fill((0, 153, 51))
+        self.teamInput.render()
         self.text.setFontSize(48)
         self.text.drawCenteredText("Create a match", 640, 100)
         self.text.drawCenteredText(self.teamOne + " vs " + self.teamTwo, 640, 300)
-        self.text.setFontSize(24)
-        for team in self.validTeams:
-            if self.validTeams.index(team) == self.offset:
-                self.text.drawCenteredText("* " + team, 200, 600 + (self.validTeams.index(team) * 30))
-            else:
-                self.text.drawCenteredText(team, 200, 600 + (self.validTeams.index(team) * 30))
-        #if both teams are selected then ask which team is batting/bowling
-        if self.teamOne != "" and self.teamTwo != "":
+        #ask user to select over limit
+        if self.askOvers == True:
+            self.text.drawCenteredText("Type in the amount of overs to be played.", 640, 400)
+
+        if self.teamOne != "" and self.teamTwo != "" and self.overs != 0:
             self.text.drawCenteredText("Which team is batting first?", 640, 400)
-            self.teamOneButton.render("1")
-            self.teamTwoButton.render("2")
+            self.teamOneButton.render(self.teamOne)
+            self.teamTwoButton.render(self.teamTwo)
             self.canChangeState = True          
 
     def update(self):
         if self.canChangeState == True:
             if self.teamOneButton.isPressed():
-                self.stateManager.changeState(MatchState(self.stateManager, self.window, self.teamOne, self.teamTwo, self.teamOne))
+                self.stateManager.changeState(MatchState(self.stateManager, self.window, self.teamOne, self.teamTwo, self.teamOne, self.overs))
             elif self.teamTwoButton.isPressed():
-                 self.stateManager.changeState(MatchState(self.stateManager, self.window, self.teamOne, self.teamTwo, self.teamTwo))
+                 self.stateManager.changeState(MatchState(self.stateManager, self.window, self.teamOne, self.teamTwo, self.teamTwo, self.overs))
 
     def pollEvents(self, event):
         if event.type == pygame.KEYDOWN:
@@ -241,21 +299,32 @@ class MatchCreationState(State):
                 print(self.offset)
             if event.key == pygame.K_RETURN:
                 print("You selected: " + self.validTeams[self.offset])
-                if(self.teamOne == ''):
-                    self.teamOne = self.validTeams[self.offset]
-                elif(self.teamTwo == ''):
-                    self.teamTwo = self.validTeams[self.offset]
+                #checks for overs
+                if self.teamOne != '' and self.teamTwo != '' and self.askOvers == True:
+                    self.overs = int(self.teamInput.getText().strip())
+                    self.askOvers = False
+                #checks to see if team inputted is valid
+                text = self.teamInput.getText()
+                for item in self.validTeams:
+                    if item == text:                        
+                        if(self.teamOne == ''):
+                            self.teamOne = item
+                        elif(self.teamTwo == ''):
+                            self.teamTwo = item
+                            self.askOvers = True
+                        self.teamInput.clearText()
+                
         self.teamOneButton.pollForEvents(event)
         self.teamTwoButton.pollForEvents(event)
+        self.teamInput.pollForEvents(event)
 
 #----TEST----
 def printList(l):
     print(str(l))
 #------------
 
-#-------TODO: FIX DUPLICATE BOWLER WICKETS------------#
 class MatchState(State):
-    def __init__(self, stateManager, window, teamOne, teamTwo, battingFirst):
+    def __init__(self, stateManager, window, teamOne, teamTwo, battingFirst, overs):
         super(MatchState, self).__init__(stateManager)
         #constructor & utility stuff
         self.stateManager = stateManager
@@ -279,7 +348,7 @@ class MatchState(State):
         self.totalBalls = 0
         self.ballsThisOver = 0
         self.overs = 0
-        self.maxOvers = 1
+        self.maxOvers = overs
         self.facingBatsman = 0
         self.nonFacingBatsman = 1
         self.askWicketTaker = False
@@ -288,6 +357,7 @@ class MatchState(State):
         #data to save at the end of the match - gets passed on to next state to save the stats for the match
         self.wicketTakers = []
         self.runScorers = []
+        
         
         #team stuff
         self.teamOne = teamOne
@@ -382,12 +452,14 @@ class MatchState(State):
         self.overs = 0
         self.score = 0
         self.totalBalls = 0
+        self.totalWickets = 0
         self.innings = 2
 
     def checkWin(self):
         if self.overs == self.maxOvers and self.innings == 2:
             if self.score == self.target - 1:
                 print("The match is a draw")
+                self.stateManager.changeState(MatchWinState(self.stateManager, self.window, "Draw", self.wicketTakers, self.runScorers))
             elif self.score < self.target - 1:
                 print(self.teams[0] + " wins")
                 self.stateManager.changeState(MatchWinState(self.stateManager, self.window, self.teams[0], self.wicketTakers, self.runScorers))
@@ -442,7 +514,6 @@ class MatchState(State):
                 self.buttons[i].render(self.window)
 
     def update(self):
-        print(self.found)
         if self.buttons[0].isPressed():
             self.scoreThisBall = 1
             self.balls = 1
@@ -507,18 +578,7 @@ class MatchState(State):
                     print(self.offset)
                 if event.key == pygame.K_RETURN:
                     print("You selected: " + self.bowlingPlayerNames[self.offset-1])
-                    #checking for duplicate
-                    #var to check if soemthing is found
-                    if len(self.wicketTakers) > 0:   
-                        for i in range(len(self.wicketTakers)):
-                            if self.wicketTakers[i][0] == self.bowlingPlayerNames[self.offset-1]:
-                                self.wicketTakers[i][1] += 1
-                            #todo fix this
-                            if self.found == False:
-                                self.wicketTakers.append([self.bowlingPlayerNames[self.offset-1], 1])
-                    else:
-                        print("True")
-                        self.wicketTakers.append([self.bowlingPlayerNames[self.offset-1], 1])
+                    self.wicketTakers.append(self.bowlingPlayerNames[self.offset-1])
                     printList(self.wicketTakers)
                     self.askWicketTaker = False
             else:
@@ -535,25 +595,58 @@ class MatchWinState(State):
         self.window = window
         self.winningTeam = winningTeam
         self.text = utility.TextRenderer(window)
-        self.wicketTakers = wicketTakers
         self.runScorers = runScorers
-        printList(wicketTakers)
-        printList(runScorers)
+        self.wicketTakersDict = self.parseWicketTakers(wicketTakers)
+        self.save(self.wicketTakersDict, runScorers)
+        self.menuButton = utility.Button(pygame.image.load("resources/MenuButton.png").convert(), 520, 630)
 
+    def parseWicketTakers(self, wicketTakersList):
+        dictionary = {}
+        for item in wicketTakersList:
+            try:
+                if dictionary[item] != "":
+                    dictionary[item] += 1
+            except:
+                dictionary[item] = 1
+        print(str(dictionary))
+        return dictionary
+
+    def save(self, wicketTakers, runScorers):
+        for key in wicketTakers:
+            jsonloader.addPlayerStats(jsonloader.data, key, 0, wicketTakers[key])
+        for i in range(len(runScorers)):
+            jsonloader.addPlayerStats(jsonloader.data, runScorers[i][0], runScorers[i][1], 0)
+        jsonloader.saveFile(jsonloader.data)
+        
     def render(self):
         self.window.fill((0, 153, 51))
         self.text.setFontSize(48)
-        self.text.drawCenteredText(self.winningTeam + " has won the match", 640, 100)
+        if self.winningTeam != "Draw":
+            self.text.drawCenteredText(self.winningTeam + " has won the match", 640, 100)
+        else:
+            self.text.drawCenteredText("The match is a draw", 640, 100)
         self.text.setFontSize(36)
-        self.text.drawCenteredText("Run Scorers: ", 320, 170)
+        self.text.drawCenteredText("Run Scorers: ", 320, 210)
         self.text.setFontSize(24)
+        x = 0
         for i in range(len(self.runScorers)):
-            self.text.drawCenteredText(str(self.runScorers[i][0]) + ": " + str(self.runScorers[i][1]), 320, 240 + (i * 30))
+            if self.runScorers[i][1] > 0:
+                self.text.drawCenteredText(str(self.runScorers[i][0]) + ": " + str(self.runScorers[i][1]), 320, 280 + (x * 30))
+                x += 1
+        self.text.setFontSize(36)
+        self.text.drawCenteredText("Wicket Takers: ", 960, 210)
+        self.text.setFontSize(24)
+        i = 0
+        for key in self.wicketTakersDict:
+            self.text.drawCenteredText(key + ": " + str(self.wicketTakersDict[key]), 960, 280 + (i * 30))
+            i += 1
+        self.menuButton.render(self.window)
 
     def update(self):
-        pass
+        if self.menuButton.isPressed():
+            self.stateManager.changeState(MenuState(self.stateManager, self.window))
 
     def pollEvents(self, event):
-        pass
+        self.menuButton.pollForEvents(event)
         
         

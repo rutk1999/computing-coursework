@@ -128,6 +128,7 @@ class TextInput:
                 print(self.textBuffer)
 
     def getText(self):
-        return ''.join(self.textBuffer)
+        return ''.join(self.textBuffer).strip() #bug here, to fix it i .stripped it
         
-            
+    def clearText(self):
+        self.textBuffer = []

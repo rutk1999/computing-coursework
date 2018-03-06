@@ -17,6 +17,9 @@ def deletePlayer(fileJSON, playerName):
         if fileJSON["players"][i]["name"] == playerName:
             del fileJSON["players"][i]
 
+def addTeam(fileJSON, teamName):
+    fileJSON["teams"].append({"teamName": teamName, "wins": 0})
+
 def increaseMatchCounter(fileJSON, playerName):
     for i in range(len(fileJSON["players"])):
         if fileJSON["players"][i]["name"] == playerName:
